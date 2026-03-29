@@ -1,0 +1,24 @@
+[project]
+name = "py-blackjack"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "hikari[speedups]>=2.5.0",
+    "hikari-miru>=4.2.0",
+    "python-dotenv>=1.2.2",
+    "hikari-arc>=2.2.0",
+]
+
+[tool.ruff]
+line-length = 90
+target-version = "py314"
+
+[tool.ruff.lint]
+extend-select = ["I"]  # Enables import sorting
+
+[tool.ruff.lint.isort]
+known-first-party = ["commands", "events"]
+combine-as-imports = true
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
