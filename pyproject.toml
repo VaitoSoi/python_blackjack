@@ -19,6 +19,6 @@ target-version = "py314"
 extend-select = ["I"]  # Enables import sorting
 
 [tool.ruff.lint.isort]
-known-first-party = ["commands", "events"]
+known-first-party = ["commands", "events", "lib", "logic"]
 combine-as-imports = true
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
