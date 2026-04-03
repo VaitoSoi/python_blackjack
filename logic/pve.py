@@ -48,6 +48,9 @@ class PvE(miru.View):
                 else:
                     return "user"
 
+            if user in ["weak", "bust"]:
+                return "bot"
+
             # Only "pair", "blackjack", "charlie" left
             # And these results always beat the normal result
             return "user"
