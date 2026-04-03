@@ -27,11 +27,11 @@ class PvE(miru.View):
         # Try to parse str to int because data loaded from DB will always be str
         try:
             user = int(user)
-        except (ValueError, TypeError): 
+        except ValueError, TypeError:
             pass
         try:
             bot = int(bot)
-        except (ValueError, TypeError): 
+        except ValueError, TypeError:
             pass
 
         if type(user) is str:
@@ -78,11 +78,12 @@ class PvE(miru.View):
         bot_deck: list[str],
         user_deck: list[str],
         cards: list[str],
-        *,
-        timeout: float | int | timedelta | None = 120,
-        autodefer: bool | miru.AutodeferOptions = True,
     ) -> None:
-        super().__init__(timeout=timeout, autodefer=autodefer)
+        super().__init__(
+            autodefer=miru.AutodeferOptions(
+                miru.AutodeferMode.ON, hikari.ResponseType.DEFERRED_MESSAGE_UPDATE
+            )
+        )
         self.id = id
         self.user_id = user_id
         self.bot_deck = bot_deck
