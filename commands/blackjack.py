@@ -55,9 +55,13 @@ async def history(
     )
     result = PvE.get_result(match.bot_evaluation, match.user_evaluation)
     embed = await pve_view.construct_done_embed(result, miru_client)
-    
-    embed.set_footer("Blackjack PvE History")
-    embed.timestamp = match.created_at.astimezone()
+
+    embed.add_field(
+        "Match info:",
+        f"**ID:** {id}\n**Played at:** <t:{round(match.created_at.timestamp())}:f>",
+    )
+    embed.set_footer(None)
+    embed.timestamp = None
 
     await ctx.respond(embed=embed)
     return
