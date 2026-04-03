@@ -9,6 +9,11 @@ dependencies = [
     "hikari-miru>=4.2.0",
     "python-dotenv>=1.2.2",
     "hikari-arc>=2.2.0",
+    "sqlmodel>=0.0.37",
+    "sqlalchemy[asyncio]>=2.0.48",
+    "aiosqlite>=0.22.1",
+    "click>=8.3.1",
+    "requests>=2.33.1",
 ]
 
 [tool.ruff]
@@ -19,6 +24,6 @@ target-version = "py314"
 extend-select = ["I"]  # Enables import sorting
 
 [tool.ruff.lint.isort]
-known-first-party = ["commands", "events", "lib", "logic"]
+known-first-party = ["commands", "events", "lib", "logic", "models"]
 combine-as-imports = true
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
