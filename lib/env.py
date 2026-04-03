@@ -11,3 +11,4 @@ def require_env(var: str):
     return val
 
 TOKEN = require_env("TOKEN")
+DB_URL = require_env("DB_URL")
