@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM ghcr.io/astral-sh/uv:python3.14-bookworm AS builder
+FROM --platform=$BUILDPLATFORM ghcr.io/astral-sh/uv:python3.14-trixie AS builder
 
 ARG TARGETPLATFORM
 
@@ -21,7 +21,7 @@ RUN case "$TARGETPLATFORM" in \
 
 
 # Final stage — Run code
-FROM python:3.14-bookworm
+FROM python:3.14-trixie
 
 WORKDIR /app
 VOLUME /app/data
