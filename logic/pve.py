@@ -4,22 +4,35 @@ from typing import Callable, cast
 import hikari
 import miru
 
+from lib.db import session_maker
 from lib.static import COLORS, EMOJI, REPO_URL
 from lib.util import to_hikari_color
+from models.game import PvE as PvETable
 
-from .base import EvalutionResult, MatchResult, SpecialResultWeight, card_evaluate
+from .base import EvaluationResult, MatchResult, SpecialResultWeight, card_evaluate
 
 
 class PvE(miru.View):
     id: str
+    user_id: str
     bot_deck: list[str]
     user_deck: list[str]
     cards: list[str]
 
     @staticmethod
-    def get_result(bot: EvalutionResult, user: EvalutionResult) -> MatchResult:
+    def get_result(bot: EvaluationResult, user: EvaluationResult) -> MatchResult:
         if bot == user:
             return "draw"
+
+        # Try to parse str to int because data loaded from DB will always be str
+        try:
+            user = int(user)
+        except (ValueError, TypeError): 
+            pass
+        try:
+            bot = int(bot)
+        except (ValueError, TypeError): 
+            pass
 
         if type(user) is str:
             # If user and bot both get special results: "pair", "blackjack", "charlie" or "weak", "bust"
@@ -58,6 +71,7 @@ class PvE(miru.View):
     def __init__(
         self,
         id: str,
+        user_id: str,
         bot_deck: list[str],
         user_deck: list[str],
         cards: list[str],
@@ -67,11 +81,12 @@ class PvE(miru.View):
     ) -> None:
         super().__init__(timeout=timeout, autodefer=autodefer)
         self.id = id
+        self.user_id = user_id
         self.bot_deck = bot_deck
         self.user_deck = user_deck
         self.cards = cards
 
-    async def contruct_embed(
+    async def construct_embed(
         self, client: miru.Client | None = None, reveal: bool = False
     ) -> hikari.Embed:
         client = client or self.client
@@ -100,10 +115,10 @@ class PvE(miru.View):
             embed.add_field("Bot deck", " ".join(EMOJI["back"] for _ in self.bot_deck))
         return embed
 
-    async def contruct_done_embed(
+    async def construct_done_embed(
         self, result: MatchResult, client: miru.Client | None = None
     ) -> hikari.Embed:
-        embed = await self.contruct_embed(client, True)
+        embed = await self.construct_embed(client, True)
         if result == "user":
             embed.color = to_hikari_color(COLORS.Green)
             embed.title = "🎉 You win 🎉"
@@ -115,11 +130,11 @@ class PvE(miru.View):
             embed.title = "🐧 Both win 🤖"
         return embed
 
-    async def complete_game(self):
+    async def complete_game(self, client: miru.Client | None = None):
         user_evaluation = card_evaluate(self.user_deck)
         bot_evaluation = card_evaluate(self.bot_deck)
 
-        condition_checker: Callable[[EvalutionResult], bool]
+        condition_checker: Callable[[EvaluationResult], bool]
         if type(user_evaluation) is int:
             condition_checker = lambda evaluation: (  # noqa: E731
                 (
@@ -146,20 +161,36 @@ class PvE(miru.View):
             bot_evaluation = card_evaluate(self.bot_deck)
 
         result = PvE.get_result(bot_evaluation, user_evaluation)
-        return await self.contruct_done_embed(result)
+
+        async with session_maker() as session:
+            game = PvETable(
+                id=self.id,
+                user_id=self.user_id,
+                user_evaluation=user_evaluation,
+                user_deck=self.user_deck,
+                bot_evaluation=bot_evaluation,
+                bot_deck=self.bot_deck,
+                winner=result,
+            )
+            session.add(game)
+            await session.commit()
+
+        return await self.construct_done_embed(result, client)
 
     @miru.button("Draw", emoji="👊", style=hikari.ButtonStyle.SECONDARY)
     async def draw(self, ctx: miru.ViewContext, button):
         self.user_deck.append(self.cards.pop())
         evaluation = card_evaluate(self.user_deck)
         if type(evaluation) is int or evaluation == "weak":
-            embed = await self.contruct_embed()
+            embed = await self.construct_embed()
             await ctx.edit_response(embed=embed)
         else:
             embed = await self.complete_game()
             await ctx.edit_response(embed=embed, components=[])
+            self.stop()
 
     @miru.button("Stop", emoji="🛑", style=hikari.ButtonStyle.DANGER)
     async def stop_(self, ctx, button):
         embed = await self.complete_game()
         await ctx.edit_response(embed=embed, components=[])
+        self.stop()

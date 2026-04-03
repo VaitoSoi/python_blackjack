@@ -5,12 +5,12 @@ CARD_REGEX = re.compile(r"^(\d|10|a|j|q|k)(?:h|d|c|s)$")
 
 SpecialResult = Literal["weak", "bust", "pair", "blackjack", "charlie"]
 MatchResult = Literal["bot", "user", "draw"]
-EvalutionResult = int | SpecialResult
+EvaluationResult = int | SpecialResult
 
 
 def card_evaluate(
     deck: list[str],
-) -> EvalutionResult:
+) -> EvaluationResult:
     """
     Response explaination
     | Name      | When                      |
