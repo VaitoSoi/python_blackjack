@@ -23,6 +23,11 @@ jobs:
     
     runs-on: docker
 
+    services:
+      docker-daemon:
+        image: docker:dind
+        options: --privileged --dns 8.8.8.8 --dns 8.8.4.4 # Required for DinD to function
+    
     env:
       # Forgejo registry
       DOCKER_HOST: tcp://docker-daemon:2375
