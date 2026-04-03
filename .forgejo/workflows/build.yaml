@@ -23,11 +23,6 @@ jobs:
     
     runs-on: docker
 
-    services:
-      docker-daemon:
-        image: docker:dind
-        options: --privileged --dns 8.8.8.8 --dns 8.8.4.4 # Required for DinD to function
-    
     env:
       # Forgejo registry
       DOCKER_HOST: tcp://docker-daemon:2375
@@ -44,21 +39,6 @@ jobs:
           PASSWORD: ${{ secrets.FORGEJO_TOKEN }}
         run: |
           echo "$PASSWORD" | docker login "${REGISTRY}" -u "${USERNAME}" --password-stdin
-
-      # - name: Create Docker context for remote daemon (TLS)
-      #   run: |
-      #     set -ex
-      #     if [[ $DOCKER_TLS_VERIFY = "1" ]]; then
-      #       docker context rm -f remote || true;
-      #       docker context create remote \
-      #         --docker "host=${DOCKER_HOST},ca=${DOCKER_CERT_PATH}/ca.pem,cert=${DOCKER_CERT_PATH}/cert.pem,key=${DOCKER_CERT_PATH}/key.pem";
-      #       unset DOCKER_HOST;
-      #       docker context use remote;
-      #       echo "Created context remote";
-      #       docker context inspect remote;
-      #     else
-      #       echo "Use default context";
-      #     fi
 
       - name: Build buildx driver
         run: |
