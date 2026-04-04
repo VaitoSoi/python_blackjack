@@ -1,7 +1,7 @@
 # Python Blackjack
 A simple Blackjack bot written in Python with [Hikari](https://www.hikari-py.dev/), [Arc](https://arc.hypergonial.com/) and [Miru](https://miru.hypergonial.com/).
 
-## I. Setup
+## I. Setup & Start the bot
 To setup enviroment, install packages with this command:
 ```bash
 uv sync
@@ -17,11 +17,21 @@ For more options, run:
 python cli.py setup --help
 ```
 
-## II. Start the bot
 After set up the environment, run this command:
 ```bash
 python cli.py start
 ```
+
+### II. Commands:
+
+These are available commands:
+
+| Name               | Description             |
+|--------------------|-------------------------|
+| /ping              | Get bot's lattency      |
+| /blackjack guide   | Show a guide to play BJ |
+| /blackjack pve     | Play Blackjack with bot |
+| /blackjack history | Show your history       |
 
 ### III. Demo:
 
